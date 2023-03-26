@@ -2,6 +2,7 @@ package by.shumilov.controller;
 
 import by.shumilov.bean.User;
 import by.shumilov.dao.UserDao;
+import by.shumilov.service.PageService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,19 +15,26 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
     private final UserDao userDao;
+    private final PageService service;
 
     @Autowired
-    public UserController(UserDao userDao) {
+    public UserController(UserDao userDao, PageService service) {
         this.userDao = userDao;
+        this.service = service;
     }
 
     @GetMapping()
-    public List<User> gelAllUsers() {
-        return userDao
+    public List<User> gelAllUsers(@RequestParam(value = "page", required = false) Integer page,
+                                  @RequestParam(value = "size", required = false) Integer size) {
+        List<User> userList = userDao
                 .findAll()
                 .stream()
                 .sorted(Comparator.comparing(User::getEmail))
                 .collect(Collectors.toList());
+        if (page != null && size != null) {
+            return service.findPaginated(userList, page, size);
+        } else return userList;
+
     }
 
     @GetMapping("/{id}")
