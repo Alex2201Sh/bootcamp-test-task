@@ -1,0 +1,4 @@
+DROP DATABASE IF EXISTS bootcamp;
+
+CREATE DATABASE bootcamp;
+
